@@ -430,7 +430,7 @@ public class JDBCRunner {
         System.out.println("DELETEd " + count);
         getDriver(connection);
     }
-
+//
     private static void getExperiencedDrivers(Connection connection, int experience) throws SQLException {
         long time = System.currentTimeMillis();
         PreparedStatement statement = connection.prepareStatement(
