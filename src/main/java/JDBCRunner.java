@@ -29,20 +29,20 @@ public class JDBCRunner {
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER_NAME, DATABASE_PASS)) {
             while (true) {
                 System.out.println("Select an option:");
-                System.out.println("1. Get Contracts");
-                System.out.println("2. Get Cars");
-                System.out.println("3. Get Drivers");
-                System.out.println("4. Get Fines");
-                System.out.println("5. Get Fines by Car ID");
-                System.out.println("6. Get Car by Driver ID");
-                System.out.println("7. Add Car");
-                System.out.println("8. Add Driver");
-                System.out.println("9. Add Fine");
-                System.out.println("10. Update Car Fines");
-                System.out.println("11. Remove Car");
-                System.out.println("12. Remove Driver");
-                System.out.println("13. Remove Fines");
-                System.out.println("14. Get Experienced Drivers");
+                System.out.println("1. Get Cars");
+                System.out.println("2. Get Drivers");
+                System.out.println("3. Get Fines");
+                System.out.println("4. Get Fines by Car ID");
+                System.out.println("5. Get Car by Driver ID");
+                System.out.println("6. Add Car");
+                System.out.println("7. Add Driver");
+                System.out.println("8. Add Fine");
+                System.out.println("9. Update Car Fines");
+                System.out.println("10. Remove Car");
+                System.out.println("11. Remove Driver");
+                System.out.println("12. Remove Fines");
+                System.out.println("13. Get Experienced Drivers");
+                System.out.println("14. Get with fine");
                 System.out.println("0. Exit");
 
                 int choice = sc.nextInt();
@@ -50,31 +50,25 @@ public class JDBCRunner {
 
                 switch (choice) {
                     case 1:
-                        getContracts(connection);
-                        break;
-                    case 2:
                         getWithNumber(connection);
                         break;
-                    case 3:
+                    case 2:
                         getDriver(connection);
                         break;
-                    case 4:
+                    case 3:
                         getFines(connection);
                         break;
-                    case 5:
+                    case 4:
                         System.out.print("Enter Car ID: ");
                         int carId = sc.nextInt();
                         getFinesCar(connection, carId);
                         break;
-                    case 6:
+                    case 5:
                         System.out.print("Enter Driver ID: ");
                         int driverId = sc.nextInt();
                         getCarDriver(connection, driverId);
                         break;
-                    case 7:
-                        System.out.print("Enter Car ID: ");
-                        int car_id = sc.nextInt();
-                        sc.nextLine();
+                    case 6:
                         System.out.print("Enter Car Number: ");
                         String car_number = sc.nextLine();
                         System.out.print("Enter Brand: ");
@@ -85,9 +79,9 @@ public class JDBCRunner {
                         String fines = sc.nextLine();
                         System.out.print("Enter Owner: ");
                         String owner = sc.nextLine();
-                        addNumber(connection, car_id, car_number, brand, model, fines, owner);
+                        addNumber(connection, car_number, brand, model, fines, owner);
                         break;
-                    case 8:
+                    case 7:
                         System.out.print("Enter First Name: ");
                         String first_name = sc.nextLine();
                         System.out.print("Enter Last Name: ");
@@ -104,7 +98,7 @@ public class JDBCRunner {
                         int driver_id = sc.nextInt();
                         addDriver(connection, first_name, last_name, patronymic, age, experience, license_number, driver_id);
                         break;
-                    case 9:
+                    case 8:
                         System.out.print("Enter Car ID: ");
                         int fineCarId = sc.nextInt();
                         sc.nextLine();
@@ -116,7 +110,8 @@ public class JDBCRunner {
                         int cost = sc.nextInt();
                         addFines(connection, fineCarId, fineCarNumber, type, cost);
                         break;
-                    case 10:
+                    case 9:
+                        getWithNumber(connection);
                         System.out.print("Enter Car ID: ");
                         int updateCarId = sc.nextInt();
                         sc.nextLine();
@@ -124,25 +119,30 @@ public class JDBCRunner {
                         String updateFines = sc.nextLine();
                         correctCar(connection, updateCarId, updateFines);
                         break;
-                    case 11:
+                    case 10:
                         System.out.print("Enter Car ID to Remove: ");
                         int removeCarId = sc.nextInt();
                         removeNumber(connection, removeCarId);
                         break;
-                    case 12:
+                    case 11:
                         System.out.print("Enter Driver ID to Remove: ");
                         int removeDriverId = sc.nextInt();
                         removeDriver(connection, removeDriverId);
                         break;
-                    case 13:
+                    case 12:
                         System.out.print("Enter Car ID to Remove Fines: ");
                         int removeFinesCarId = sc.nextInt();
                         removeFines(connection, removeFinesCarId);
                         break;
-                    case 14:
+                    case 13:
                         System.out.print("Enter Experience: ");
                         int exp = sc.nextInt();
                         getExperiencedDrivers(connection, exp);
+                        break;
+                    case 14:
+                        System.out.println("Enter type: ");
+                        String typ = sc.nextLine();
+                        getTypeFines(connection, typ);
                         break;
                     case 0:
                         System.out.println("Exiting...");
@@ -159,8 +159,6 @@ public class JDBCRunner {
             } else throw new RuntimeException(e);
         }
     }
-
-    // region // Проверка окружения и доступа к базе данных
 
     public static void checkDriver() {
         try {
@@ -180,33 +178,7 @@ public class JDBCRunner {
         }
     }
 
-    static void getContracts(Connection connection) throws SQLException {
-        String param = "";
 
-        Statement statement = connection.createStatement();             // создаем оператор для простого запроса (без параметров)
-        ResultSet rs = statement.executeQuery("SELECT * FROM contract;");   // выполняем запроса на поиск и получаем список ответов
-
-        int count = rs.getMetaData().getColumnCount();  // сколько столбцов в ответе
-        for (int i = 1; i <= count; i++) {
-            // что в этом столбце?
-            System.out.println("position - " + i +
-                    ", label - " + rs.getMetaData().getColumnLabel(i) +
-                    ", type - " + rs.getMetaData().getColumnType(i) +
-                    ", typeName - " + rs.getMetaData().getColumnTypeName(i) +
-                    ", javaClass - " + rs.getMetaData().getColumnClassName(i)
-            );
-        }
-        System.out.println();
-
-        while (rs.next()) {  // пока есть данные
-            for (int i = 1; i <= count; i++) {
-                param += rs.getString(i);
-                if (i != count) param += " | ";
-            }
-            System.out.println(param);
-            param = "";
-        }
-    }
 
     // endregion
 
@@ -221,7 +193,7 @@ public class JDBCRunner {
         /* boolean param4;*/
 
         Statement statement = connection.createStatement();     // создаем оператор для простого запроса (без параметров)
-        ResultSet rs = statement.executeQuery("SELECT * FROM car;"); // выполняем запроса на поиск и получаем список ответов
+        ResultSet rs = statement.executeQuery("SELECT * FROM car ORDER BY 1;"); // выполняем запроса на поиск и получаем список ответов
 
         while (rs.next()) {
             param0 = rs.getInt(columnId);
@@ -239,7 +211,7 @@ public class JDBCRunner {
         String param1 = null, param2 = null, param3 = null, param4 = null, param5 = null, param6 = null, param7 = null;
 
         Statement statement = connection.createStatement();                 // создаем оператор для простого запроса (без параметров)
-        ResultSet rs = statement.executeQuery("SELECT * FROM driver;");  // выполняем запроса на поиск и получаем список ответов
+        ResultSet rs = statement.executeQuery("SELECT * FROM driver ORDER BY 1;");  // выполняем запроса на поиск и получаем список ответов
 
         while (rs.next()) {
             param0 = rs.getInt(1);
@@ -259,7 +231,7 @@ public class JDBCRunner {
         String param1 = null, param2 = null;
 
         Statement statement = connection.createStatement();                 // создаем оператор для простого запроса (без параметров)
-        ResultSet rs = statement.executeQuery("SELECT * FROM fines;");  // выполняем запроса на поиск и получаем список ответов
+        ResultSet rs = statement.executeQuery("SELECT * FROM fines ORDER BY 1;");  // выполняем запроса на поиск и получаем список ответов
 
         while (rs.next()) {
             param0 = rs.getInt(2);
@@ -269,11 +241,6 @@ public class JDBCRunner {
             System.out.println(param0 + " | " + param1 + " | " + param2 + " | " + param3);
         }
     }
-
-
-    // endregion
-
-    // region // SELECT-запросы с параметрами и объединением таблиц
 
 
 
@@ -292,12 +259,7 @@ public class JDBCRunner {
         ResultSet rs = statement.executeQuery();
 
         while (rs.next()) {
-            System.out.println("Car ID: " + rs.getInt(1) +
-                    " | Number: " + rs.getString(2) +
-                    " | Brand: " + rs.getString(3) +
-                    " | Model: " + rs.getString(4) +
-                    " | Fines: " + rs.getString(5) +
-                    " | Owner: " + rs.getString(6));
+            System.out.println("Car ID: " + rs.getInt(1) + " | Number: " + rs.getString(2) + " | Brand: " + rs.getString(3) + " | Model: " + rs.getString(4) + " | Fines: " + rs.getString(5) + " | Owner: " + rs.getString(6));
         }
 
         rs.close();
@@ -311,22 +273,17 @@ public class JDBCRunner {
 
         long time = System.currentTimeMillis();
         PreparedStatement statement = connection.prepareStatement(
-                "SELECT car.id, car.car_number, car.brand, car.model, car.fines, car.owner " +
-                        "FROM driver " +
-                        "JOIN car ON driver.driver_id = car.id " +
-                        "WHERE driver.driver_id = ?;"
+                    "SELECT car.id, car.car_number, car.brand, car.model, car.fines, car.owner " +
+                            "FROM driver " +
+                            "JOIN car ON driver.driver_id = car.id " +
+                            "WHERE driver.driver_id = ?;"
         );
         statement.setInt(1, id);
 
         ResultSet rs = statement.executeQuery();
 
         while (rs.next()) {
-            System.out.println("Car ID: " + rs.getInt(1) +
-                    " | Number: " + rs.getString(2) +
-                    " | Brand: " + rs.getString(3) +
-                    " | Model: " + rs.getString(4) +
-                    " | Fines: " + rs.getString(5) +
-                    " | Owner: " + rs.getString(6));
+            System.out.println("Car ID: " + rs.getInt(1) + " | Number: " + rs.getString(2) + " | Brand: " + rs.getString(3) + " | Model: " + rs.getString(4) + " | Fines: " + rs.getString(5) + " | Owner: " + rs.getString(6));
         }
 
         rs.close();
@@ -335,37 +292,32 @@ public class JDBCRunner {
         System.out.println("SELECT with WHERE (" + (System.currentTimeMillis() - time) + " ms.)");
     }
 
-    // endregion
 
-    // region // CUD-запросы на добавление, изменение и удаление записей
-
-    private static void addNumber(Connection connection, int id, String number, String brand, String model, String fines, String owner) throws SQLException {
-        if (number == null || number.isBlank() || id < 0 || brand.isBlank() || model.isBlank() || fines == null || owner.isBlank()) {
+    private static void addNumber(Connection connection, String number, String brand, String model, String fines, String owner) throws SQLException {
+        if (number == null || number.isBlank() || brand.isBlank() || model.isBlank() || fines == null || owner.isBlank()) {
             System.out.println("Invalid parameters!");
             return;
         }
 
         PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO car(id, car_number, brand, model, fines, owner) VALUES (?, ?, ?, ?, ?, ?) returning id;",
+                "INSERT INTO car(car_number, brand, model, fines, owner) VALUES (?, ?, ?, ?, ?);",
                 Statement.RETURN_GENERATED_KEYS
         );
-
-        statement.setInt(1, id);
-        statement.setString(2, number);
-        statement.setString(3, brand);
-        statement.setString(4, model);
-        statement.setString(5, fines);
-        statement.setString(6, owner);
+        statement.setString(1, number);
+        statement.setString(2, brand);
+        statement.setString(3, model);
+        statement.setString(4, fines);
+        statement.setString(5, owner);
 
         int count = statement.executeUpdate();
 
-        ResultSet rs = statement.getGeneratedKeys(); //
+        ResultSet rs = statement.getGeneratedKeys();
         if (rs.next()) {
-            System.out.println("Идентификатор машины " + rs.getInt(1) + " Номер машины " + rs.getString(2) + " Марка " + rs.getString(3) + " Модель " + rs.getString(4) + " Штрафы " + rs.getBoolean(5) + " Владелец " + rs.getString(6));
+            System.out.println("Идентификатор машины " + rs.getInt(1) + " Номер машины " + rs.getString(2) + " Марка " + rs.getString(3) + " Модель " + rs.getString(4) + " Штрафы " + rs.getString(5) + " Владелец " + rs.getString(6));
         }
 
         System.out.println("INSERTed " + count + " car");
-        getDriver(connection);
+        getWithNumber(connection);
     }
 
     private static void addDriver(Connection connection, String first_name, String last_name, String patronymic, int age, int experience, int license_number, int driver_id) throws SQLException {
@@ -387,17 +339,16 @@ public class JDBCRunner {
         statement.setInt(6, license_number);
         statement.setInt(7, driver_id);
 
-        int count = statement.executeUpdate();  // выполняем запрос на вставку и получаем количество измененных строк
+        int count = statement.executeUpdate();
 
-        ResultSet rs = statement.getGeneratedKeys(); // получаем сгенерированные ключи
-        if (rs.next()) { // если есть результаты
-            int generatedId = rs.getInt(1); // получаем значение сгенерированного ID
+        ResultSet rs = statement.getGeneratedKeys();
+        if (rs.next()) {
+            int generatedId = rs.getInt(1);
             System.out.println("Generated ID: " + generatedId);
         }
 
         System.out.println("INSERTed " + count + " driver");
-        statement.close(); // закрываем statement
-        getDriver(connection); // вызываем метод для получения списка водителей (предполагая, что это ваш метод)
+        getDriver(connection);
     }
 
     private static void addFines(Connection connection, int car_id, String car_number, String type, int cost) throws SQLException {
@@ -415,11 +366,11 @@ public class JDBCRunner {
         statement.setString(2, car_number);
         statement.setString(3, type);
         statement.setInt(4, cost);
-        int count = statement.executeUpdate();  // выполняем запрос на вставку и возвращаем количество измененных строк
+        int count = statement.executeUpdate();
 
-        ResultSet rs = statement.getGeneratedKeys(); // получаем сгенерированные ключи
-        if (rs.next()) { // если есть результаты
-            int penaltyNumber = rs.getInt(1); // получаем значение сгенерированного penalty_number из первой колонки
+        ResultSet rs = statement.getGeneratedKeys();
+        if (rs.next()) {
+            int penaltyNumber = rs.getInt(1);
             System.out.println("Generated Penalty Number: " + penaltyNumber);
         }
 
@@ -427,19 +378,18 @@ public class JDBCRunner {
         statement.close();
 
         System.out.println("INSERTed " + count + " fine");
-        // getDriver(connection); // Если нужно выполнить какой-то метод после вставки, раскомментируйте и добавьте его
+        // getDriver(connection);
     }
 
     private static void correctCar(Connection connection, int id, String fines) throws SQLException {
         if (fines == null || fines.isBlank() || id <= 0) return;
 
         PreparedStatement statement = connection.prepareStatement("UPDATE car SET fines=? WHERE id=?;");
-        statement.setString(1, fines); // сначала что передаем
-        statement.setInt(2, id);   // затем по чему ищем
-
+        statement.setString(1, fines);
+        statement.setInt(2, id);
         statement.executeUpdate();
-        getDriver(connection);
         System.out.println("Successful");
+        getWithNumber(connection);
     }
 
     private static void removeNumber(Connection connection, int id) throws SQLException {
@@ -456,7 +406,7 @@ public class JDBCRunner {
 
         int count = statement.executeUpdate(); // выполняем запрос на удаление и возвращаем количество измененных строк
         System.out.println("DELETEd " + count);
-        getDriver(connection);
+        getWithNumber(connection);
     }
 
     private static void removeDriver(Connection connection, int driver_id) throws SQLException {
@@ -487,7 +437,7 @@ public class JDBCRunner {
                 "SELECT id, first_name, last_name, patronymic, age, experience, license_number, driver_id " +
                         "FROM driver " +
                         "WHERE experience > ? " +
-                        "ORDER BY experience DESC;"
+                        "ORDER BY experience;"
         );
         statement.setInt(1, experience);
 
@@ -502,4 +452,15 @@ public class JDBCRunner {
 
         System.out.println("SELECT with WHERE and ORDER BY (" + (System.currentTimeMillis() - time) + " ms.)");
     }
+    static void getTypeFines(Connection connection, String type) throws SQLException {
+        if(type == null || type.isBlank()) return;
+        type = '%' + type + '%';
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM fines WHERE type LIKE ?;");
+        statement.setString(1, type);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            System.out.println(rs.getInt(1) + "|" + rs.getInt(2) + "|" + rs.getString(3)  + "|" + rs.getString(4)  + "|" + rs.getInt(5));
+        }
+    }
+
 }
